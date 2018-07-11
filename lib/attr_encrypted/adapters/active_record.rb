@@ -51,8 +51,26 @@ if defined?(ActiveRecord::Base)
             super
             options = attrs.extract_options!
             attr = attrs.pop
-            attribute attr if ::ActiveRecord::VERSION::STRING >= "5.1.0"
             options.merge! encrypted_attributes[attr]
+
+            if ::ActiveRecord::VERSION::STRING >= "5.1.0"
+              attribute attr
+              encrypted_attribute_name = (options[:attribute] ? options[:attribute] : [options[:prefix], attribute, options[:suffix]].join).to_sym
+
+              after_find do |record|
+                _write_attribute(attr, decrypt(attr, send(encrypted_attribute_name)))
+                clear_attribute_change(attr)
+              end
+
+              define_method(attr) do
+                self.attributes[attr] || _write_attribute(attr, decrypt(attr, send(encrypted_attribute_name)))
+              end
+
+              define_method("#{attr}=") do |value|
+                send("#{encrypted_attribute_name}=", encrypt(attr, value))
+                _write_attribute(attr, value)
+              end
+            end
 
             define_method("#{attr}_was") do
               attribute_was(attr)
@@ -64,7 +82,7 @@ if defined?(ActiveRecord::Base)
               end
             else
               define_method("#{attr}_changed?") do
-                  attribute_changed?(attr)
+                attribute_changed?(attr)
               end
             end
 

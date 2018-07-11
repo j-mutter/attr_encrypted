@@ -120,7 +120,7 @@ class Address < ActiveRecord::Base
   self.attr_encrypted_options[:marshal] = false
   self.attr_encrypted_options[:encode] = false
   attr_encrypted :street, encode_iv: false, key: SECRET_KEY
-  attr_encrypted :zipcode, key: SECRET_KEY, mode: Proc.new { |address| address.mode.to_sym }, insecure_mode: true
+  attr_encrypted :zipcode, key: SECRET_KEY, mode: Proc.new { |address| address.mode&.to_sym }, insecure_mode: true
 end
 
 class ActiveRecordTest < Minitest::Test
