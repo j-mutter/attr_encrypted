@@ -308,16 +308,21 @@ class ActiveRecordTest < Minitest::Test
 
   # See https://github.com/attr-encrypted/attr_encrypted/issues/68
   def test_should_invalidate_virtual_attributes_on_reload
-    old_pm_name = 'Winston Churchill'
-    new_pm_name = 'Neville Chamberlain'
-    pm = PrimeMinister.create!(name: old_pm_name)
-    assert_equal old_pm_name, pm.name
-    pm.name = new_pm_name
-    assert_equal new_pm_name, pm.name
+    old_pm_email = 'winston.churchill@gov.uk'
+    old_password = 'winnie'
+    new_pm_email = 'neville.chamberlain@gov.uk'
+    new_password = 'nelly'
+    pm = Person.create!(email: old_pm_email, password: old_password)
 
-    result = pm.reload
-    assert_equal pm, result
-    assert_equal old_pm_name, pm.name
+    pm.email = new_pm_email
+    pm.password = new_password
+
+    assert_equal new_pm_email, pm.email
+    assert_equal new_password, pm.password
+
+    pm.reload
+    assert_equal old_pm_email, pm.email
+    assert_equal old_password, pm.password
   end
 
   def test_should_save_encrypted_data_as_binary
