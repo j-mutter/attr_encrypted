@@ -131,15 +131,15 @@ module AttrEncrypted
   #   @user.encrypted_configuration # returns the encrypted version of configuration
   #
   #   See README for more examples
-  def attr_encrypted(*attributes)
-    options = attributes.last.is_a?(Hash) ? attributes.pop : {}
+  def attr_encrypted(*args)
+    options = args.last.is_a?(Hash) ? args.pop : {}
     options = attr_encrypted_default_options.dup.merge!(attr_encrypted_options).merge!(options)
 
     options[:encode] = options[:default_encoding] if options[:encode] == true
     options[:encode_iv] = options[:default_encoding] if options[:encode_iv] == true
     options[:encode_salt] = options[:default_encoding] if options[:encode_salt] == true
 
-    attributes.each do |attribute|
+    args.each do |attribute|
       encrypted_attribute_name = (options[:attribute] ? options[:attribute] : [options[:prefix], attribute, options[:suffix]].join).to_sym
 
       instance_methods_as_symbols = attribute_instance_methods_as_symbols
